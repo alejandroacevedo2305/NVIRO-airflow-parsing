@@ -1,0 +1,113 @@
+# Airflow
+logs/
+*.pyc
+__pycache__/
+.pytest_cache/
+airflow.db
+airflow.cfg
+airflow_login.py
+unittests.cfg
+webserver_config.py
+standalone_admin_password.txt
+airflow-webserver.pid
+airflow-worker.pid
+airflow-scheduler.pid
+
+# Data files
+data/
+*.csv
+*.json
+*.parquet
+*.xlsx
+*.xls
+*.pickle
+*.pkl
+*.h5
+*.hdf5
+
+# Environment
+.env
+.env.local
+.env.*.local
+venv/
+env/
+ENV/
+.venv/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Python
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+pip-log.txt
+pip-delete-this-directory.txt
+htmlcov/
+.tox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+.hypothesis/
+
+# Docker
+*.log
+docker-compose.override.yml
+
+# Jupyter Notebook
+.ipynb_checkpoints
+*.ipynb
+
+# Secrets
+*.pem
+*.key
+*.crt
+*.p12
+credentials/
+secrets/
+
+# Backup files
+*.bak
+*.backup
+*.old
+*.orig
+
+# Temporary files
+*.tmp
+*.temp
+.tmp/
+.temp/
+tmp/
+temp/
+
+# OS files
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+*.cab
+*.msi
+*.msm
+*.msp
+*.lnk
