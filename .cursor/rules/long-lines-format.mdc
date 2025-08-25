@@ -1,0 +1,57 @@
+---
+alwaysApply: true
+---
+
+Line length and long-strings formatting
+
+- Always hard-wrap lines at a maximum of 88 characters. No exceptions.
+- Apply to all source files and code blocks (Python, Markdown, YAML, TOML, JSON).
+- Prefer parentheses for line continuations. Do not use backslashes (\\) for wrapping.
+
+Python long strings: split using implicit concatenation inside parentheses
+
+```python
+text = (
+    "summarise given text\nThe company reported an 8% rise in Q3 2024, driven by"
+    " strong performance in the Asian market. Sales in this region have significantly"
+    " contributed to the overall growth. Analysts attribute this success to strategic"
+    " marketing and product localization. The positive trend in the Asian market is"
+    " expected to continue into the next quarter."
+)
+```
+
+F-strings: split into multiple f-strings within parentheses
+
+```python
+msg = (
+    f"User {user_id} requested report for {year} "
+    f"with filter {filter_name} and page size {page_size}"
+)
+```
+
+Function calls, imports, and collections: break after `(` and one item per line
+
+```python
+result = some_function(
+    very_long_argument_name_one,
+    very_long_argument_name_two,
+    option=True,
+)
+
+from package.subpackage import (
+    alpha,
+    beta,
+    gamma,
+)
+
+items = [
+    "first",
+    "second",
+    "third",
+]
+```
+
+Comments and docstrings
+
+- Wrap at 88 characters; reflow text to avoid exceeding the limit.
+- Prefer links on their own line if they exceed the limit.

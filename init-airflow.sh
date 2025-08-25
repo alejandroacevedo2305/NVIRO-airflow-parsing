@@ -46,7 +46,7 @@ if [ ! -f .env ]; then
     if [ -f env.example ]; then
         echo -e "${YELLOW}Creating .env file from env.example...${NC}"
         cp env.example .env
-        
+
         # Update AIRFLOW_UID in .env
         if [[ "$OSTYPE" == "darwin"* ]]; then
             # macOS
@@ -55,7 +55,7 @@ if [ ! -f .env ]; then
             # Linux
             sed -i "s/AIRFLOW_UID=.*/AIRFLOW_UID=${AIRFLOW_UID}/" .env
         fi
-        
+
         echo -e "${GREEN}✓ .env file created${NC}"
     else
         echo -e "${RED}Warning: env.example not found${NC}"

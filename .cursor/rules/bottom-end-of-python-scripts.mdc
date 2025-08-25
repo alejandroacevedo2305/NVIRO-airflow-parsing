@@ -1,0 +1,30 @@
+---
+alwaysApply: true
+---
+Bottom end of Python scripts
+
+- Always end Python files with a runnable main guard:
+  `if __name__ == "__main__":`.
+- Below the guard, include minimal testing or demonstration code that exercises
+  the functionality defined above (functions, classes, or script behavior).
+- Keep tests concise and side-effect safe; prefer printing results or
+  assertions that can run quickly.
+
+Example:
+
+```python
+def add(a: int, b: int) -> int:
+    return a + b
+
+
+if __name__ == "__main__":
+    # Simple demonstration / test
+    result = add(2, 3)
+    assert result == 5, f"Expected 5, got {result}"
+    print("add(2, 3) ->", result)
+```
+
+Notes:
+
+- Place this block at the very end of the file.
+- Keep line lengths within 88 characters.

@@ -1,0 +1,28 @@
+[project]
+name = "nviro-airflow-parsing"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "aiohttp>=3.12.15",
+    "azure-storage-blob>=12.26.0",
+    "boto3>=1.40.16",
+    "faker>=37.5.3",
+    "google-cloud-storage>=3.3.0",
+    "great-expectations>=0.18.8",
+    "httpx>=0.28.1",
+    "numpy>=2.3.2",
+    "pandas>=2.3.2",
+    "psycopg2-binary>=2.9.10",
+    "pyarrow>=21.0.0",
+    "pydantic>=2.11.7",
+    "pymongo>=4.14.1",
+    "pytest>=8.4.1",
+    "pytest-cov>=6.2.1",
+    "python-dotenv>=1.1.1",
+    "redis>=6.4.0",
+    "requests>=2.32.5",
+    "sentry-sdk>=2.35.0",
+    "sqlalchemy>=2.0.43",
+]

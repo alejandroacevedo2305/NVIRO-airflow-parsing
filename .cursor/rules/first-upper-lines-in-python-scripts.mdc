@@ -1,0 +1,32 @@
+---
+alwaysApply: true
+---
+First lines in Python scripts
+
+- Always start Python files with a module docstring on line 1.
+- Immediately follow the docstring with a single `# %%` cell marker on the
+  next line.
+- Place all imports after that cell marker.
+
+Example structure:
+
+```python
+"""Short description of this module.
+
+Optional longer explanation that wraps at 88 characters.
+"""
+
+# %%
+from __future__ import annotations
+
+import sys
+from pathlib import Path
+
+# module code follows...
+```
+
+Notes:
+
+- Keep the top-level docstring concise; wrap at 88 characters.
+- Leave a single blank line between the docstring and `# %%` only if needed for
+  readability, but prefer none.

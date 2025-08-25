@@ -1,0 +1,43 @@
+---
+alwaysApply: true
+---
+Coding guidelines
+
+- Write code that is understandable and human-readable.
+- Favor clarity over cleverness; prefer explicit over implicit.
+- Organize code logically into small, cohesive, and reusable functions.
+- Keep modules focused; one responsibility per module where practical.
+- Use descriptive names for variables, functions, classes, and modules.
+- Add concise docstrings to public functions, classes, and modules.
+- Handle errors explicitly; avoid catching exceptions without meaningful action.
+- Prefer early returns and guard clauses to reduce nesting.
+- Keep functions short; refactor long or complex blocks into helpers.
+- Avoid duplication; extract shared logic into utilities.
+- Maintain consistent formatting and abide by project lint/format rules.
+- Write side-effect-safe demonstration/tests under a main guard.
+- Keep public APIs typed; avoid unnecessary type annotations for locals.
+- Limit line length to 88 characters and wrap thoughtfully.
+- Write comments to explain "why", not "what".
+
+Reusability
+
+- Factor shared logic into functions, classes, and modules; avoid duplication.
+- Prefer pure functions with clear inputs/outputs; minimize side effects.
+- Design small, composable units; favor composition over inheritance by default.
+- Parameterize behavior instead of copy-paste variants; provide sensible defaults.
+- Isolate I/O and external deps behind interfaces to enable mocking in tests.
+- Keep functions single-responsibility to enable reuse across contexts.
+- Define clear, documented interfaces and stable public APIs.
+- Avoid global state; pass dependencies explicitly (dependency injection).
+- Include small docstring examples that show common reuse patterns.
+
+Modularity
+
+- Structure code into well-defined modules with clear boundaries and ownership.
+- Keep module responsibilities narrow; avoid god-objects and mega-modules.
+- Prefer shallow dependency graphs; avoid cycles. Enforce one-directional deps.
+- Separate pure domain logic from I/O, frameworks, and adapters.
+- Expose minimal public APIs; keep internals private where possible.
+- Place integration points at edges (adapters), not in core domain modules.
+- Group related code (types, utils, services) by domain, not by layer only.
+- Make modules replaceable: depend on interfaces/abstractions, not concretions.

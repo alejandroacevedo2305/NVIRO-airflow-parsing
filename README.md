@@ -23,7 +23,7 @@ A production-ready Apache Airflow deployment using Docker Compose with CeleryExe
    ```bash
    ./init-airflow.sh
    ```
-   
+
    This script will:
    - Check Docker installation
    - Create necessary directories
@@ -37,9 +37,9 @@ A production-ready Apache Airflow deployment using Docker Compose with CeleryExe
    ```
 
 4. **Access Airflow UI:**
-   
+
    Open your browser and navigate to: http://localhost:3000
-   
+
    Default credentials:
    - Username: `admin`
    - Password: `admin`
@@ -206,7 +206,7 @@ airflow-webserver:
    ```bash
    # Generate Fernet Key
    python -c "from cryptography.fernet import Fernet; print(Fernet.generate_key().decode())"
-   
+
    # Generate Secret Key
    python -c "import secrets; print(secrets.token_hex(16))"
    ```

@@ -1,21 +1,18 @@
 # Common Airflow configuration
-x-airflow-common:
-  &airflow-common
+x-airflow-common: &airflow-common
   build:
     context: .
     dockerfile: Dockerfile
-  environment:
-    &airflow-common-env
-    # Core configuration
+  environment: &airflow-common-env # Core configuration
     AIRFLOW__CORE__EXECUTOR: CeleryExecutor
     AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: postgresql+psycopg2://airflow:airflow@postgres/airflow
     AIRFLOW__CELERY__RESULT_BACKEND: db+postgresql://airflow:airflow@postgres/airflow
     AIRFLOW__CELERY__BROKER_URL: redis://:@redis:6379/0
     AIRFLOW__CORE__FERNET_KEY: ${AIRFLOW_FERNET_KEY:-81HqDtbqAywKSOumSha3BhWNOdQ26slT6K0YaZeZyPs=}
-    AIRFLOW__CORE__DAGS_ARE_PAUSED_AT_CREATION: 'false'
-    AIRFLOW__CORE__LOAD_EXAMPLES: 'false'
-    AIRFLOW__CORE__LOAD_DEFAULT_CONNECTIONS: 'false'
-    
+    AIRFLOW__CORE__DAGS_ARE_PAUSED_AT_CREATION: "false"
+    AIRFLOW__CORE__LOAD_EXAMPLES: "false"
+    AIRFLOW__CORE__LOAD_DEFAULT_CONNECTIONS: "false"
+
     # Performance optimization
     AIRFLOW__CORE__PARALLELISM: 32
     AIRFLOW__CORE__DAG_CONCURRENCY: 16
@@ -25,13 +22,13 @@ x-airflow-common:
     AIRFLOW__SCHEDULER__MIN_FILE_PROCESS_INTERVAL: 30
     AIRFLOW__SCHEDULER__DAG_DIR_LIST_INTERVAL: 60
     AIRFLOW__CELERY__WORKER_CONCURRENCY: 16
-    
+
     # Database connection pooling
     AIRFLOW__DATABASE__SQL_ALCHEMY_POOL_SIZE: 10
     AIRFLOW__DATABASE__SQL_ALCHEMY_MAX_OVERFLOW: 20
     AIRFLOW__DATABASE__SQL_ALCHEMY_POOL_RECYCLE: 1800
-    AIRFLOW__DATABASE__SQL_ALCHEMY_POOL_PRE_PING: 'true'
-    
+    AIRFLOW__DATABASE__SQL_ALCHEMY_POOL_PRE_PING: "true"
+
     # Webserver configuration - Changed to port 3000
     AIRFLOW__WEBSERVER__BASE_URL: http://localhost:3000
     AIRFLOW__WEBSERVER__WEB_SERVER_PORT: 3000
@@ -39,41 +36,40 @@ x-airflow-common:
     AIRFLOW__WEBSERVER__WORKER_REFRESH_INTERVAL: 6000
     AIRFLOW__WEBSERVER__WORKER_REFRESH_BATCH_SIZE: 1
     AIRFLOW__WEBSERVER__WORKER_CLASS: sync
-    
+
     # Security
-    AIRFLOW__API__AUTH_BACKENDS: 'airflow.api.auth.backend.basic_auth,airflow.api.auth.backend.session'
+    AIRFLOW__API__AUTH_BACKENDS: "airflow.api.auth.backend.basic_auth,airflow.api.auth.backend.session"
     AIRFLOW__WEBSERVER__SECRET_KEY: ${AIRFLOW_SECRET_KEY:-09c3f6bc5a5e4e8f9d2a1b3c4d5e6f7a}
-    AIRFLOW__WEBSERVER__EXPOSE_CONFIG: 'false'
-    AIRFLOW__WEBSERVER__WARN_DEPLOYMENT_EXPOSURE: 'false'
-    
+    AIRFLOW__WEBSERVER__EXPOSE_CONFIG: "false"
+    AIRFLOW__WEBSERVER__WARN_DEPLOYMENT_EXPOSURE: "false"
+
     # Logging
     AIRFLOW__LOGGING__LOGGING_LEVEL: INFO
     AIRFLOW__LOGGING__FAB_LOGGING_LEVEL: WARNING
-    
+
     # Scheduler health check
-    AIRFLOW__SCHEDULER__ENABLE_HEALTH_CHECK: 'true'
-    
+    AIRFLOW__SCHEDULER__ENABLE_HEALTH_CHECK: "true"
+
     # Timezone
     AIRFLOW__CORE__DEFAULT_TIMEZONE: UTC
     AIRFLOW__WEBSERVER__DEFAULT_UI_TIMEZONE: UTC
-    
+
     # Email configuration (optional)
     AIRFLOW__EMAIL__EMAIL_BACKEND: airflow.utils.email.send_email_smtp
     AIRFLOW__SMTP__SMTP_HOST: ${SMTP_HOST:-localhost}
     AIRFLOW__SMTP__SMTP_PORT: ${SMTP_PORT:-587}
     AIRFLOW__SMTP__SMTP_MAIL_FROM: ${SMTP_MAIL_FROM:-airflow@example.com}
-    
+
     # Additional Python packages
     _PIP_ADDITIONAL_REQUIREMENTS: ${_PIP_ADDITIONAL_REQUIREMENTS:-}
-    
+
   volumes:
     - ./dags:/opt/airflow/dags
     - ./logs:/opt/airflow/logs
     - ./plugins:/opt/airflow/plugins
     - ./data:/opt/airflow/data
   user: "${AIRFLOW_UID:-50000}:0"
-  depends_on:
-    &airflow-common-depends-on
+  depends_on: &airflow-common-depends-on
     redis:
       condition: service_healthy
     postgres:
@@ -182,7 +178,7 @@ services:
       replicas: 2
       resources:
         limits:
-          cpus: '1'
+          cpus: "1"
           memory: 2G
 
   # Airflow Triggerer
@@ -214,25 +210,25 @@ services:
         function check_requirements() {
           local mem_available=$$(($$(getconf _PHYS_PAGES) * $$(getconf PAGE_SIZE) / 1048576))
           local cpus_available=$$(nproc)
-          
+
           if (( mem_available < 4000 )); then
             echo "WARNING: Insufficient memory ($$mem_available MB). At least 4GB recommended."
           fi
-          
+
           if (( cpus_available < 2 )); then
             echo "WARNING: Insufficient CPUs ($$cpus_available). At least 2 CPUs recommended."
           fi
         }
-        
+
         check_requirements
-        
+
         # Create necessary directories
         mkdir -p /sources/logs /sources/dags /sources/plugins /sources/data
         chown -R "${AIRFLOW_UID}:0" /sources/{logs,dags,plugins,data}
-        
+
         # Initialize database
         airflow db init
-        
+
         # Create admin user if it doesn't exist
         airflow users create \
           --username ${_AIRFLOW_WWW_USER_USERNAME:-admin} \
@@ -241,16 +237,16 @@ services:
           --lastname User \
           --role Admin \
           --email admin@example.com || true
-        
+
         # Create connection pools
         airflow pools set default_pool 128 "Default pool" || true
-        
+
         # Show Airflow version
         exec /entrypoint airflow version
     environment:
       <<: *airflow-common-env
-      _AIRFLOW_DB_MIGRATE: 'true'
-      _AIRFLOW_WWW_USER_CREATE: 'true'
+      _AIRFLOW_DB_MIGRATE: "true"
+      _AIRFLOW_WWW_USER_CREATE: "true"
       _AIRFLOW_WWW_USER_USERNAME: ${_AIRFLOW_WWW_USER_USERNAME:-admin}
       _AIRFLOW_WWW_USER_PASSWORD: ${_AIRFLOW_WWW_USER_PASSWORD:-admin}
     user: "0:0"

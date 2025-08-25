@@ -1,0 +1,23 @@
+---
+alwaysApply: true
+---
+Consider we are using linux/ubuntu.
+
+alejandro@alejandro
+          -------------------
+OS: Ubuntu 24.04.3 LTS x86_64
+Host: Z690 UD AX DDR4
+Kernel: 6.8.0-71-generic
+Uptime: 16 hours, 26 mins
+Packages: 2957 (dpkg), 18 (snap)
+Shell: bash 5.2.21
+Resolution: 3840x2160, 4096x2304
+DE: GNOME 46.0
+WM: Mutter
+WM Theme: Adwaita
+Theme: Yaru-red-dark [GTK2/3]
+Icons: Yaru-red [GTK2/3]
+Terminal: WarpTerminal
+CPU: 12th Gen Intel i7-12700KF (20) @ 4.900GHz
+GPU: NVIDIA GeForce RTX 3060 Lite Hash Rate
+Memory: 7737MiB / 128649MiB
