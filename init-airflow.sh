@@ -24,7 +24,7 @@ if ! command_exists docker; then
 fi
 
 # Check Docker Compose installation
-if ! command_exists docker-compose && ! docker compose version >/dev/null 2>&1; then
+if ! command_exists docker compose && ! docker compose version >/dev/null 2>&1; then
     echo -e "${RED}Error: Docker Compose is not installed${NC}"
     echo "Please install Docker Compose first: https://docs.docker.com/compose/install/"
     exit 1
@@ -89,11 +89,11 @@ fi
 
 # Build custom image
 echo -e "${YELLOW}Building custom Airflow image...${NC}"
-docker-compose build
+docker compose build
 
 # Initialize Airflow database
 echo -e "${YELLOW}Initializing Airflow...${NC}"
-docker-compose up airflow-init
+docker compose up airflow-init
 
 # Check initialization status
 if [ $? -eq 0 ]; then
@@ -109,10 +109,10 @@ echo -e "${GREEN}        Setup completed successfully!          ${NC}"
 echo -e "${GREEN}================================================${NC}"
 echo ""
 echo -e "${YELLOW}To start Airflow, run:${NC}"
-echo -e "  ${GREEN}docker-compose up -d${NC}"
+echo -e "  ${GREEN}docker compose up -d${NC}"
 echo ""
 echo -e "${YELLOW}To stop Airflow, run:${NC}"
-echo -e "  ${GREEN}docker-compose down${NC}"
+echo -e "  ${GREEN}docker compose down${NC}"
 echo ""
 echo -e "${YELLOW}Airflow will be available at:${NC}"
 echo -e "  ${GREEN}http://localhost:3000${NC}"
