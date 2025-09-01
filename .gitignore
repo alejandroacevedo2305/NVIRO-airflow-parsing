@@ -24,7 +24,6 @@ airflow-scheduler.pid
 data/
 *.csv
 *.json
-*.parquet
 *.xlsx
 *.xls
 *.pickle
