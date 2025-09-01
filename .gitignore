@@ -1,3 +1,11 @@
+docs_colletions/
+.env
+.env.local
+.env.*.local
+venv/
+env/
+ENV/
+.venv/
 # Airflow
 logs/
 *.pyc
