@@ -1,5 +1,14 @@
 #!/bin/bash
 
+set -Eeuo pipefail
+
+on_error() {
+    echo -e "${RED}An error occurred (line $1). Aborting.${NC}"
+    exit 1
+}
+
+trap 'on_error $LINENO' ERR
+
 # Colors for output
 RED='\033[0;31m'
 GREEN='\033[0;32m'
@@ -41,6 +50,16 @@ fi
 echo -e "${YELLOW}Setting up environment...${NC}"
 export AIRFLOW_UID=$(id -u)
 
+ensure_project_dirs() {
+    echo -e "${YELLOW}Creating required directories...${NC}"
+    mkdir -p ./dags ./logs ./plugins ./data
+    mkdir -p ./docs_colletions ./docs_colletions/PDFs ./docs_colletions/Markdowns ./docs_colletions/chunks
+    for d in ./docs_colletions ./docs_colletions/PDFs ./docs_colletions/Markdowns ./docs_colletions/chunks; do
+        [ -f "$d/.gitkeep" ] || : > "$d/.gitkeep"
+    done
+    echo -e "${GREEN}✓ Directories ensured${NC}"
+}
+
 # Create .env file if it doesn't exist
 if [ ! -f .env ]; then
     if [ -f env.example ]; then
@@ -66,12 +85,11 @@ else
 fi
 
 # Create necessary directories
-echo -e "${YELLOW}Creating required directories...${NC}"
-mkdir -p ./dags ./logs ./plugins ./data
+ensure_project_dirs
 
 # Set proper permissions
 echo -e "${YELLOW}Setting permissions...${NC}"
-chmod -R 755 ./dags ./logs ./plugins ./data
+chmod -R 755 ./dags ./logs ./plugins ./data ./docs_colletions || true
 
 echo -e "${GREEN}✓ Directories created and permissions set${NC}"
 
@@ -93,7 +111,7 @@ docker compose build
 
 # Initialize Airflow database
 echo -e "${YELLOW}Initializing Airflow...${NC}"
-docker compose up airflow-init
+docker compose up --exit-code-from airflow-init airflow-init
 
 # Check initialization status
 if [ $? -eq 0 ]; then
@@ -103,12 +121,14 @@ else
     exit 1
 fi
 
+echo -e "${YELLOW}Note:${NC} initialization finished. Containers are not started by this script."
+
 echo ""
 echo -e "${GREEN}================================================${NC}"
 echo -e "${GREEN}        Setup completed successfully!          ${NC}"
 echo -e "${GREEN}================================================${NC}"
 echo ""
-echo -e "${YELLOW}To start Airflow, run:${NC}"
+echo -e "${YELLOW}To start Airflow later, run:${NC}"
 echo -e "  ${GREEN}docker compose up -d${NC}"
 echo ""
 echo -e "${YELLOW}To stop Airflow, run:${NC}"

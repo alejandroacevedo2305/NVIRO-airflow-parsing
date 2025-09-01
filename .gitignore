@@ -118,3 +118,9 @@ $RECYCLE.BIN/
 *.msm
 *.msp
 *.lnk
+
+# Keep docs_colletions folder structure but ignore its files
+docs_colletions/**/*
+!docs_colletions/**/
+!docs_colletions/.gitkeep
+!docs_colletions/**/.gitkeep

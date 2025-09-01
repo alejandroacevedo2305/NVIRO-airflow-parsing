@@ -1,7 +1,7 @@
 """Utilities to validate metadata and set a composite index.
 
 This module reads a Parquet metadata table and replaces the DataFrame index with a
-string built by concatenating the columns `id`, `type`, and `anexes`.
+string built by concatenating the columns `id`, `type`, and `subtype`.
 """
 
 # %%
@@ -9,10 +9,10 @@ import pandas as pd
 
 
 def set_composite_index(df: pd.DataFrame) -> pd.DataFrame:
-    """Return a copy of ``df`` with index built from ``id``, ``type`` and ``anexes``.
+    """Return a copy of ``df`` with index built from ``id``, ``type`` and ``subtype``.
 
     The resulting index is named ``id_type_anexes`` and joins the three columns with
-    underscores. Missing values are treated as empty strings. If the ``anexes``
+    underscores. Missing values are treated as empty strings. If the ``subtype``
     column is not present in the DataFrame, an empty string is used instead.
     """
     required_columns = ["id", "type"]
@@ -24,16 +24,16 @@ def set_composite_index(df: pd.DataFrame) -> pd.DataFrame:
     df_with_index = df.copy()
     id_series = df_with_index["id"].astype("string").fillna("")
     type_series = df_with_index["type"].astype("string").fillna("")
-    if "anexes" in df_with_index.columns:
-        anexes_series = df_with_index["anexes"].astype("string").fillna("")
+    if "subtype" in df_with_index.columns:
+        third_series = df_with_index["subtype"].astype("string").fillna("")
     else:
-        anexes_series = pd.Series(
+        third_series = pd.Series(
             [""] * len(df_with_index),
             index=df_with_index.index,
             dtype="string",
         )
 
-    index_series = id_series + "_" + type_series + "_" + anexes_series
+    index_series = id_series + "_" + type_series + "_" + third_series
     df_with_index.index = index_series
     df_with_index.index.name = "id_type_anexes"
     return df_with_index
