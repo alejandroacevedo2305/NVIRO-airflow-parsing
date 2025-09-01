@@ -33,7 +33,7 @@ A production-ready Apache Airflow deployment using Docker Compose with CeleryExe
 
 3. **Start Airflow:**
    ```bash
-   docker-compose up -d
+   docker compose up -d
    ```
 
 4. **Access Airflow UI:**
@@ -101,46 +101,46 @@ your-package==1.0.0
 Then rebuild the image:
 
 ```bash
-docker-compose build
-docker-compose up -d
+docker compose build
+docker compose up -d
 ```
 
 ## 🚦 Managing Airflow
 
 ### Start Services
 ```bash
-docker-compose up -d
+docker compose up -d
 ```
 
 ### Stop Services
 ```bash
-docker-compose down
+docker compose down
 ```
 
 ### View Logs
 ```bash
 # All services
-docker-compose logs -f
+docker compose logs -f
 
 # Specific service
-docker-compose logs -f airflow-webserver
+docker compose logs -f airflow-webserver
 ```
 
 ### Scale Workers
 ```bash
-docker-compose up -d --scale airflow-worker=3
+docker compose up -d --scale airflow-worker=3
 ```
 
 ### Execute Airflow CLI Commands
 ```bash
-docker-compose exec airflow-webserver airflow dags list
-docker-compose exec airflow-webserver airflow tasks list <dag_id>
-docker-compose exec airflow-webserver airflow dags trigger <dag_id>
+docker compose exec airflow-webserver airflow dags list
+docker compose exec airflow-webserver airflow tasks list <dag_id>
+docker compose exec airflow-webserver airflow dags trigger <dag_id>
 ```
 
 ### Clean Up Everything (including volumes)
 ```bash
-docker-compose down -v
+docker compose down -v
 ```
 
 ## 📊 Monitoring
@@ -150,7 +150,7 @@ docker-compose down -v
 Enable Flower for monitoring Celery workers:
 
 ```bash
-docker-compose --profile flower up -d
+docker compose --profile flower up -d
 ```
 
 Access Flower at: http://localhost:5555
@@ -160,60 +160,80 @@ Access Flower at: http://localhost:5555
 All services include health checks. Check service health:
 
 ```bash
-docker-compose ps
+docker compose ps
 ```
 
 ## 🔧 Troubleshooting
 
 ### Permission Issues
-
 If you encounter permission issues:
 
 ```bash
 sudo chown -R $(id -u):$(id -g) ./dags ./logs ./plugins ./data
 ```
 
-### Database Connection Issues
+### Database Initialization & Connection Issues
 
-Reset the database:
+- Error: `You need to initialize the database. Please run "airflow db init"`.
 
+  Fix (one-time init):
+  ```bash
+  ./init-airflow.sh
+  # or
+  docker compose build
+  docker compose up --exit-code-from airflow-init airflow-init
+  ```
+
+  Then start services:
+  ```bash
+  docker compose up -d
+  ```
+
+- If init still fails, force-initialize inside a container:
+  ```bash
+  docker compose run --rm airflow-webserver airflow db init
+  docker compose up -d
+  ```
+
+- Inspect init logs when diagnosing:
+  ```bash
+  docker compose logs --no-color airflow-init | tail -n 200
+  ```
+
+### Restore/Force Admin Credentials
+If the default admin credentials are missing or changed, recreate/update them:
 ```bash
-docker-compose down -v
-./init-airflow.sh
-docker-compose up -d
+docker compose run --rm airflow-webserver \
+  airflow users create \
+  --username admin \
+  --firstname Admin \
+  --lastname User \
+  --role Admin \
+  --email admin@example.com \
+  --password admin || \
+docker compose run --rm airflow-webserver \
+  airflow users update \
+  --username admin \
+  --password admin
+```
+Then restart the webserver if needed:
+```bash
+docker compose restart airflow-webserver
 ```
 
-### Out of Memory
-
-Increase Docker memory allocation in Docker Desktop settings or adjust resource limits in `docker-compose.yaml`.
-
-### Port Already in Use
-
-If port 3000 is already in use, change it in `docker-compose.yaml`:
-
-```yaml
-airflow-webserver:
-  ports:
-    - "YOUR_PORT:3000"
+### Start Services Separately (after init)
+The `init-airflow.sh` script prepares and initializes the environment but does
+not start the containers. Start them separately with:
+```bash
+docker compose up -d
 ```
 
-## 🛡️ Security Considerations
-
-**⚠️ IMPORTANT for Production:**
-
-1. **Change default credentials** in `.env`
-2. **Generate new security keys**:
-   ```bash
-   # Generate Fernet Key
-   python -c "from cryptography.fernet import Fernet; print(Fernet.generate_key().decode())"
-
-   # Generate Secret Key
-   python -c "import secrets; print(secrets.token_hex(16))"
-   ```
-3. **Use secrets management** (e.g., HashiCorp Vault, AWS Secrets Manager)
-4. **Enable SSL/TLS** for production deployments
-5. **Implement network segmentation** using Docker networks
-6. **Regular security updates** of base images
+### Ensure Correct Airflow User (Linux)
+Make sure your `.env` contains a valid `AIRFLOW_UID` to avoid permission issues
+on mounted volumes:
+```bash
+echo "AIRFLOW_UID=$(id -u)" > .env
+```
 
 ## 📚 Creating DAGs
 
@@ -276,4 +296,4 @@ For issues and questions:
 - [Apache Airflow Documentation](https://airflow.apache.org/docs/)
 - [Docker Documentation](https://docs.docker.com/)
 - [Docker Compose Documentation](https://docs.docker.com/compose/)
-- [Best Practices for Airflow](https://airflow.apache.org/docs/apache-airflow/stable/best-practices.html)
+- [Best Practices for Airflow](https://airflow.apache-airflow/stable/best-practices.html)
