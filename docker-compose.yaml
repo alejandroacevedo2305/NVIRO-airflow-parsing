@@ -3,6 +3,8 @@ x-airflow-common: &airflow-common
   build:
     context: .
     dockerfile: Dockerfile
+  env_file:
+    - .env
   environment: &airflow-common-env # Core configuration
     AIRFLOW__CORE__EXECUTOR: CeleryExecutor
     AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: postgresql+psycopg2://airflow:airflow@postgres/airflow
@@ -60,14 +62,22 @@ x-airflow-common: &airflow-common
     AIRFLOW__SMTP__SMTP_PORT: ${SMTP_PORT:-587}
     AIRFLOW__SMTP__SMTP_MAIL_FROM: ${SMTP_MAIL_FROM:-airflow@example.com}
 
-    # Additional Python packages
-    _PIP_ADDITIONAL_REQUIREMENTS: ${_PIP_ADDITIONAL_REQUIREMENTS:-}
+    # Python path to allow importing local packages (mounted under /opt/airflow)
+    PYTHONPATH: /opt/airflow
+
+    # Additional Python packages (install at container start)
+    _PIP_ADDITIONAL_REQUIREMENTS: ${_PIP_ADDITIONAL_REQUIREMENTS:-pymupdf pymupdf4llm}
 
   volumes:
     - ./dags:/opt/airflow/dags
     - ./logs:/opt/airflow/logs
     - ./plugins:/opt/airflow/plugins
     - ./data:/opt/airflow/data
+    - ./s3pdf_manager:/opt/airflow/s3pdf_manager
+    - ./localPDFparse:/opt/airflow/localPDFparse
+    - ./sql:/opt/airflow/sql
+    - ./docs_colletions:/opt/airflow/docs_colletions
+    - ./.env:/opt/airflow/.env:ro
   user: "${AIRFLOW_UID:-50000}:0"
   depends_on: &airflow-common-depends-on
     redis:
@@ -242,7 +252,7 @@ services:
         airflow pools set default_pool 128 "Default pool" || true
 
         # Show Airflow version
-        exec /entrypoint airflow version
+        echo "Airflow init completed"
     environment:
       <<: *airflow-common-env
       _AIRFLOW_DB_MIGRATE: "true"

@@ -7,6 +7,7 @@ These tests avoid real AWS by mocking the downloader and S3 client behavior.
 from __future__ import annotations
 
 import io
+import os
 from pathlib import Path
 from typing import Dict
 from zipfile import ZipFile
@@ -15,12 +16,14 @@ import pandas as pd
 import pytest
 
 from s3pdf_manager.download_pdf import (
+    PARQUET_PATH,
     _build_output_path,
     _extract_pdf_from_zip_bytes,
     compute_indices_in_range,
     delete_by_index,
     delete_by_list,
     download_by_index,
+    load_metadata,
 )
 
 
@@ -230,3 +233,39 @@ def test_delete_by_list(tmp_path: Path):
     count = delete_by_list(["IDX1", "IDX2", "IDX3"], output_dir=out_dir)
     assert count == 2
     assert not p1.exists() and not p2.exists()
+
+
+def test_integration_download_real_pdf(tmp_path: Path):
+    """Integration: actually download one PDF from S3 if env is configured.
+
+    Skips when ``S3_BUCKET`` is not set or when metadata is empty.
+    Uses a temporary output directory to avoid polluting the repo.
+    """
+    bucket = os.getenv("S3_BUCKET")
+    if not bucket:
+        import pytest
+
+        pytest.skip("S3_BUCKET not set; skipping real download test")
+
+    df = load_metadata(PARQUET_PATH)
+    if len(df) == 0:
+        import pytest
+
+        pytest.skip("No rows in metadata; skipping real download test")
+
+    index_value = str(df.index[0])
+    out_dir = tmp_path / "real"
+
+    path = download_by_index(
+        index_value,
+        parquet_path=PARQUET_PATH,
+        output_dir=out_dir,
+        skip_existing=False,
+        dry_run=False,
+    )
+
+    assert path.exists(), f"Expected file to exist at {path}"
+    assert path.stat().st_size > 0, "Downloaded file is empty"
+
+    # Cleanup
+    assert delete_by_index(index_value, output_dir=out_dir) is True
