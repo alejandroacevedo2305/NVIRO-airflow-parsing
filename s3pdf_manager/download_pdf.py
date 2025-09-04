@@ -77,27 +77,40 @@ load_dotenv()
 
 
 def load_metadata(parquet_path: str = PARQUET_PATH) -> pd.DataFrame:
-    """Load metadata parquet and ensure the index is ``id_type_anexes``.
+    """Load metadata parquet and ensure a valid index is set.
 
-    - Ensures the DataFrame index name is ``id_type_anexes``.
-    - If the column exists but is not the index, it is set as the index.
+    Primary expected index is ``id_type_anexes`` for backward compatibility.
+    However, newer metadata may use ``file_identifier`` as the index. This
+    function accepts either, and if neither is the current index, it will set
+    the index from one of these columns when present.
 
-    Raises ``ValueError`` if neither an index nor a column named
-    ``id_type_anexes`` is found.
+    Preference order:
+    1) If the existing index is ``id_type_anexes`` or ``file_identifier``, use it.
+    2) Else if a column ``id_type_anexes`` exists, set it as index.
+    3) Else if a column ``file_identifier`` exists, set it as index.
+
+    Raises ValueError if none of the above conditions are met.
     """
     df = pd.read_parquet(parquet_path)
 
-    if df.index.name == INDEX_NAME:
+    # Accept either legacy or new index name
+    if df.index.name in {INDEX_NAME, "file_identifier"}:
         return df
 
+    # If not already indexed, try to set preferred legacy index first
     if INDEX_NAME in df.columns:
-        df = df.set_index(INDEX_NAME)
-        return df
+        return df.set_index(INDEX_NAME)
 
+    # Fall back to file_identifier if present
+    if "file_identifier" in df.columns:
+        return df.set_index("file_identifier")
+
+    # Otherwise, fail with informative message
     raise ValueError(
         (
-            f"The metadata must contain index or column '{INDEX_NAME}'. "
-            f"Columns: {list(df.columns)} | index name: {df.index.name}"
+            f"The metadata must contain an index or column named one of: "
+            f"'{INDEX_NAME}', 'file_identifier'. Columns: {list(df.columns)} | "
+            f"index name: {df.index.name}"
         )
     )
 

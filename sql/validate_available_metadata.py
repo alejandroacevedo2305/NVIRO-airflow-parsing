@@ -1,42 +1,32 @@
-"""Utilities to validate metadata and set a composite index.
+"""Utilities to validate metadata and set index from ``file_identifier``.
 
-This module reads a Parquet metadata table and replaces the DataFrame index with a
-string built by concatenating the columns `id`, `type`, and `subtype`.
+This module reads a Parquet metadata table and replaces the DataFrame index
+with the string from the ``file_identifier`` column.
 """
 
 # %%
 import pandas as pd
 
 
-def set_composite_index(df: pd.DataFrame) -> pd.DataFrame:
-    """Return a copy of ``df`` with index built from ``id``, ``type`` and ``subtype``.
+def set_file_identifier_index(df: pd.DataFrame) -> pd.DataFrame:
+    """Return a copy of ``df`` indexed by the ``file_identifier`` column.
 
-    The resulting index is named ``id_type_anexes`` and joins the three columns with
-    underscores. Missing values are treated as empty strings. If the ``subtype``
-    column is not present in the DataFrame, an empty string is used instead.
+    The resulting index is named ``file_identifier``. Values are cast to pandas'
+    nullable string dtype and missing values are treated as empty strings.
     """
-    required_columns = ["id", "type"]
-    missing_required = [c for c in required_columns if c not in df.columns]
-    if missing_required:
-        missing_str = ", ".join(missing_required)
-        raise KeyError(f"Missing required columns to build index: {missing_str}")
+    if "file_identifier" not in df.columns:
+        raise KeyError("Missing required column to build index: file_identifier")
 
     df_with_index = df.copy()
-    id_series = df_with_index["id"].astype("string").fillna("")
-    type_series = df_with_index["type"].astype("string").fillna("")
-    if "subtype" in df_with_index.columns:
-        third_series = df_with_index["subtype"].astype("string").fillna("")
-    else:
-        third_series = pd.Series(
-            [""] * len(df_with_index),
-            index=df_with_index.index,
-            dtype="string",
-        )
-
-    index_series = id_series + "_" + type_series + "_" + third_series
+    index_series = df_with_index["file_identifier"].astype("string").fillna("")
     df_with_index.index = index_series
-    df_with_index.index.name = "id_type_anexes"
+    df_with_index.index.name = "file_identifier"
     return df_with_index
+
+
+def set_composite_index(df: pd.DataFrame) -> pd.DataFrame:
+    """Deprecated: use ``set_file_identifier_index`` instead."""
+    return set_file_identifier_index(df)
 
 
 def save_indexed_metadata(df: pd.DataFrame) -> None:
@@ -59,7 +49,7 @@ if __name__ == "__main__":
     df_original = pd.read_parquet(PARQUET_PATH)
     print("original shape:", df_original.shape)
 
-    df_indexed = set_composite_index(df_original)
+    df_indexed = set_file_identifier_index(df_original)
     print("indexed shape:", df_indexed.shape)
     print("index name:", df_indexed.index.name)
 
